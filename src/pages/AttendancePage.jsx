@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import {
   HiOutlineRefresh, HiOutlineCalendar, HiOutlineDownload,
   HiOutlineCheck, HiOutlineDocumentText, HiOutlineXCircle,
-  HiOutlineUsers, HiOutlineLocationMarker,
+  HiOutlineUsers,
 } from 'react-icons/hi';
 import API from '../api';
 
@@ -24,6 +24,11 @@ const timeStatusConfig = {
   'Tepat Waktu': { label: 'Tepat Waktu', bg: 'rgba(16, 185, 129, 0.12)', color: '#047857' },
   'Hampir Terlambat': { label: 'Hampir Terlambat', bg: 'rgba(245, 158, 11, 0.12)', color: '#B45309' },
   Terlambat: { label: 'Terlambat', bg: 'rgba(239, 68, 68, 0.12)', color: '#B91C1C' },
+};
+
+const returnStatusConfig = {
+  'Masih di Sekolah': { label: 'Masih di Sekolah', bg: 'rgba(59, 130, 246, 0.12)', color: '#1D4ED8' },
+  'Sudah Pulang': { label: 'Sudah Pulang', bg: 'rgba(34, 197, 94, 0.12)', color: '#166534' },
 };
 
 const StatusBadge = ({ status }) => {
@@ -51,6 +56,18 @@ const TimeStatusBadge = ({ statusWaktu }) => {
   );
 };
 
+const ReturnStatusBadge = ({ statusPulang }) => {
+  const cfg = returnStatusConfig[statusPulang] || { label: statusPulang || 'Belum diatur', bg: 'rgba(148, 163, 184, 0.12)', color: '#475569' };
+  return (
+    <span
+      className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+      style={{ background: cfg.bg, color: cfg.color, fontFamily: font }}
+    >
+      {cfg.label}
+    </span>
+  );
+};
+
 const Card = ({ children, className = '', style = {} }) => (
   <div
     className={`card ${className}`}
@@ -64,6 +81,7 @@ function AttendancePage() {
   const [attendances, setAttendances] = useState([]);
   const [tanggal, setTanggal] = useState('');
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => { fetchAttendances(); }, []);
 
@@ -84,6 +102,19 @@ function AttendancePage() {
 
   const handleExport = () => {
     window.open('http://localhost:3000/api/reports/export', '_blank');
+  };
+
+  const handleMarkPulang = async (attendanceId) => {
+    setActionLoading(attendanceId);
+    try {
+      await API.patch(`/attendance/${attendanceId}/pulang`);
+      await fetchAttendances();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || 'Gagal memperbarui status pulang');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const formatTanggal = (d) => {
@@ -167,7 +198,7 @@ function AttendancePage() {
             <table className="w-full">
               <thead>
                 <tr className="bg-surface border-b border-border">
-                  {['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Jam Masuk', 'Status', 'Status Waktu', 'Lokasi'].map((h) => (
+                  {['No', 'NISN', 'Nama Lengkap', 'Kelas', 'Jam Masuk', 'Status', 'Status Waktu', 'Status Pulang'].map((h) => (
                     <th
                       key={h}
                       className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wide text-text-muted"
@@ -180,7 +211,7 @@ function AttendancePage() {
               <tbody>
                 {attendances.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-16">
+                    <td colSpan={8} className="text-center py-16">
                       <div className="flex flex-col items-center gap-3">
                         <div
                           className="w-10 h-10 rounded-xl flex items-center justify-center bg-surface"
@@ -214,15 +245,20 @@ function AttendancePage() {
                       <td className="px-5 py-3.5">
                         <TimeStatusBadge statusWaktu={att.status_waktu} />
                       </td>
-                      <td className="px-5 py-3.5 text-sm text-text-muted" style={{ maxWidth: '160px' }}>
-                        {att.lokasi ? (
-                          <div className="flex items-center gap-1.5 truncate">
-                            <HiOutlineLocationMarker className="w-3.5 h-3.5 flex-shrink-0 text-text-muted" />
-                            <span className="truncate">{att.lokasi}</span>
-                          </div>
-                        ) : (
-                          <span className="text-text-muted">—</span>
-                        )}
+                      <td className="px-5 py-3.5">
+                        <div className="flex flex-col gap-2">
+                          <ReturnStatusBadge statusPulang={att.status_pulang} />
+                          {att.status_pulang === 'Masih di Sekolah' && (
+                            <button
+                              type="button"
+                              className="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                              disabled={actionLoading === att.id}
+                              onClick={() => handleMarkPulang(att.id)}
+                            >
+                              {actionLoading === att.id ? 'Memproses...' : 'Tandai Pulang'}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
