@@ -1,24 +1,13 @@
-// ============================================================
-// API Configuration — Axios Instance
-// ============================================================
-// Ubah baseURL di bawah ini sesuai dengan alamat backend Anda.
-// Contoh:
-//   - Lokal:      http://localhost:3000
-//   - LAN/WiFi:   http://192.168.1.100:3000
-//   - Production: https://api.presensi-ku.com
-
 import axios from 'axios';
 
 const API = axios.create({
-  // ========================================
-  // ⬇️ GANTI URL INI SESUAI BACKEND ANDA ⬇️
-  // ========================================
-  baseURL: 'http://localhost:3000',
+  // WAJIB menggunakan https:// agar tidak dianggap sebagai folder lokal
+  baseURL: 'https://presensiku-backend-production-4cb2.up.railway.app',
 
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 detik timeout
+  timeout: 10000,
 });
 
 export default API;
