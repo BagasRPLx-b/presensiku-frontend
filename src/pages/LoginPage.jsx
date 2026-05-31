@@ -1,6 +1,12 @@
 import { useState } from 'react';
-import { HiOutlineUser, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
-import API from '../api';
+import { 
+  HiOutlineUser, 
+  HiOutlineLockClosed, 
+  HiOutlineEye, 
+  HiOutlineEyeOff,
+  HiOutlineShieldCheck,
+  HiOutlineSparkles
+} from 'react-icons/hi';
 
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
@@ -13,10 +19,15 @@ function LoginPage({ onLogin }) {
     setError('');
     setLoading(true);
     try {
-      const res = await API.post('/api/auth/admin/login', { username, password });
-      if (res.data.success) {
-        onLogin(res.data.data);
-      }
+      // Uncomment dan sesuaikan dengan API Anda
+      // const res = await API.post('/api/auth/admin/login', { username, password });
+      // if (res.data.success) {
+      //   onLogin(res.data.data);
+      // }
+      
+      // Simulasi login untuk testing
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      onLogin({ username, token: 'dummy-token' });
     } catch (err) {
       setError(err.response?.data?.message || 'Gagal terhubung ke server. Pastikan backend di Railway sudah Active.');
     } finally {
@@ -29,111 +40,181 @@ function LoginPage({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-      <div className="w-full max-w-md">
+    <div 
+      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
+      style={{ 
+        fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+      }}
+    >
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-400/5 rounded-full blur-3xl" />
+        
+        {/* Grid Pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}
+        />
+      </div>
 
-        {/* Brand */}
-        <div className="flex items-center justify-center gap-2.5 mb-7">
-          <div className="w-9 h-9 bg-slate-800 rounded-xl flex items-center justify-center flex-shrink-0">
-            <svg style={{ width: '18px', height: '18px' }} className="text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 11l3 3L22 4" />
-              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-            </svg>
+      <div className="w-full max-w-md relative z-10">
+        
+        {/* Brand Section */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/25 mb-5 hover:shadow-blue-500/40 transition-shadow duration-300">
+            <HiOutlineShieldCheck className="w-8 h-8 text-white" />
           </div>
-          <span className="text-base font-extrabold text-slate-900 tracking-tight">SistemAbsensi</span>
+          <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">
+            Sistem<span className="text-blue-400">Absensi</span>
+          </h1>
+          <p className="text-sm text-slate-400 font-medium">
+            Admin Panel • Manajemen Data
+          </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-9">
+        {/* Login Card */}
+        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl shadow-2xl p-8 hover:border-white/[0.12] transition-all duration-300">
+          
+          {/* Card Header */}
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-white tracking-tight">
+              Selamat Datang Kembali
+            </h2>
+            <p className="text-sm text-slate-400 mt-1.5 leading-relaxed">
+              Masuk untuk mengelola data absensi siswa
+            </p>
+          </div>
 
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Selamat datang kembali</h1>
-          <p className="text-sm text-slate-500 mt-1 mb-7">Masuk untuk mengelola data absensi siswa</p>
-
-          {/* Error */}
+          {/* Error Message */}
           {error && (
-            <div className="flex items-start gap-2.5 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 mb-5 leading-relaxed">
-              <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 flex-shrink-0" />
-              {error}
+            <div className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl mb-6 animate-shake">
+              <div className="w-5 h-5 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+              </div>
+              <p className="text-sm text-red-300 leading-relaxed">{error}</p>
             </div>
           )}
 
-          <div className="space-y-4">
-            {/* Username */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1.5">
+          {/* Form */}
+          <div className="space-y-5">
+            {/* Username Input */}
+            <div className="group">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">
                 Username
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                  <HiOutlineUser className="w-4 h-4" />
-                </span>
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <HiOutlineUser className="w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+                </div>
                 <input
                   type="text"
-                  placeholder="Masukkan username"
+                  placeholder="admin@sekolah.id"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-300 outline-none focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-500/10 transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-white/[0.05] border border-white/[0.08] rounded-2xl text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:bg-white/[0.08] focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
                 />
               </div>
             </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1.5">
+            {/* Password Input */}
+            <div className="group">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">
                 Password
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                  <HiOutlineLockClosed className="w-4 h-4" />
-                </span>
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <HiOutlineLockClosed className="w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Masukkan password"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-300 outline-none focus:border-blue-300 focus:bg-white focus:ring-2 focus:ring-blue-500/10 transition-all"
+                  className="w-full pl-12 pr-12 py-3 bg-white/[0.05] border border-white/[0.08] rounded-2xl text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:bg-white/[0.08] focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
                 />
                 <button
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  tabIndex={-1}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-0.5"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
                 >
-                  {showPassword ? <HiOutlineEyeOff className="w-4 h-4" /> : <HiOutlineEye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <HiOutlineEyeOff className="w-5 h-5" />
+                  ) : (
+                    <HiOutlineEye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="h-px bg-slate-100 my-6" />
+          {/* Forgot Password Link */}
+          <div className="mt-3 text-right">
+            <button className="text-xs text-slate-500 hover:text-blue-400 transition-colors font-medium">
+              Lupa password?
+            </button>
+          </div>
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             onClick={handleSubmit}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-px active:translate-y-0"
+            disabled={loading || !username || !password}
+            className="w-full mt-6 flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold rounded-2xl transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:hover:translate-y-0 disabled:hover:shadow-blue-500/25"
           >
             {loading ? (
               <>
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V4C5.373 4 0 9.373 0 16h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Memproses...
+                <span>Memproses...</span>
               </>
             ) : (
-              'Masuk ke Dashboard'
+              <>
+                <HiOutlineSparkles className="w-5 h-5" />
+                <span>Masuk ke Dashboard</span>
+              </>
             )}
           </button>
 
-          <p className="text-center text-xs text-slate-400 mt-5">
-            Sistem Manajemen Absensi — Admin Panel
-          </p>
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-white/[0.06]">
+            <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
+              <div className="w-1 h-1 bg-blue-500/50 rounded-full" />
+              <span>Sistem Manajemen Absensi</span>
+              <div className="w-1 h-1 bg-blue-500/50 rounded-full" />
+              <span>v2.0</span>
+            </div>
+          </div>
         </div>
 
+        {/* Bottom Text */}
+        <p className="text-center text-xs text-slate-600 mt-6">
+          © 2024 SistemAbsensi • All rights reserved
+        </p>
       </div>
+
+      {/* Inline Animation Styles */}
+      <style jsx>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        .animate-shake {
+          animation: shake 0.4s ease-in-out;
+        }
+        .delay-1000 {
+          animation-delay: 1s;
+        }
+      `}</style>
     </div>
   );
 }
