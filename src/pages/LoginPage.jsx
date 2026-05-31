@@ -50,6 +50,18 @@ const IconRefresh = ({ className = "w-5 h-5" }) => (
   </svg>
 );
 
+const IconQrCode = ({ className = "w-5 h-5" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+  </svg>
+);
+
+const IconBell = ({ className = "w-5 h-5" }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+  </svg>
+);
+
 const Spinner = () => (
   <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -57,8 +69,19 @@ const Spinner = () => (
   </svg>
 );
 
+// ==================== FEATURE ITEM ====================
+function FeatureItem({ icon, text }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+        {icon}
+      </div>
+      <span className="text-sm text-slate-300">{text}</span>
+    </div>
+  );
+}
 
-// ==================== LOGIN PAGE COMPONENT ====================
+// ==================== LOGIN PAGE ====================
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -67,10 +90,9 @@ function LoginPage({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
-  
+
   const errorRef = useRef(null);
 
-  // Auto-hide error after 5 seconds
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => setError(''), 5000);
@@ -78,7 +100,6 @@ function LoginPage({ onLogin }) {
     }
   }, [error]);
 
-  // Clear error when user types
   useEffect(() => {
     if (username || password) setError('');
   }, [username, password]);
@@ -86,9 +107,7 @@ function LoginPage({ onLogin }) {
   const handleSubmit = async () => {
     if (!username.trim() || !password) {
       setError('Username dan password harus diisi');
-      if (errorRef.current) {
-        errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
@@ -99,20 +118,13 @@ function LoginPage({ onLogin }) {
       await new Promise(resolve => setTimeout(resolve, 1200));
 
       if (
-        (username === 'admin' || username === 'admin@sekolah.id') && 
+        (username === 'admin' || username === 'admin@sekolah.id') &&
         password === 'admin123'
       ) {
-        const userData = { 
-          username, 
-          token: 'dummy-jwt-token-' + Date.now() 
-        };
-        
+        const userData = { username, token: 'dummy-jwt-token-' + Date.now() };
         setLoggedInUser(userData);
         setIsLoggedIn(true);
-        
-        if (onLogin) {
-          onLogin(userData);
-        }
+        if (onLogin) onLogin(userData);
       } else {
         throw new Error('Username atau password salah. Gunakan admin / admin123 untuk demo.');
       }
@@ -138,20 +150,20 @@ function LoginPage({ onLogin }) {
   // ==================== SUCCESS VIEW ====================
   if (isLoggedIn && loggedInUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-gray-900 px-4"
-        style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
+      <div
+        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-gray-900 px-4"
+        style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}
+      >
         <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-green-500/20 rounded-full mb-6">
             <IconCheck className="w-10 h-10 text-green-400" />
           </div>
-          
           <h2 className="text-2xl font-bold text-white mb-2">Login Berhasil!</h2>
           <p className="text-slate-300 mb-6">
             Selamat datang,{' '}
             <span className="font-semibold text-white">{loggedInUser.username}</span>.
             Anda diarahkan ke dashboard utama.
           </p>
-          
           <div className="bg-white/5 rounded-xl p-4 text-left space-y-2 mb-6">
             <p className="text-sm text-slate-300 flex items-center gap-2">
               <span className="text-blue-400 font-mono">✓</span> Akses realtime absensi
@@ -163,7 +175,6 @@ function LoginPage({ onLogin }) {
               <span className="text-blue-400 font-mono">✓</span> Laporan Excel & Izin siswa
             </p>
           </div>
-          
           <button
             onClick={handleReset}
             className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
@@ -171,7 +182,6 @@ function LoginPage({ onLogin }) {
             <IconRefresh className="w-5 h-5" />
             Kembali ke Halaman Login
           </button>
-          
           <p className="text-xs text-slate-500 mt-4">
             © 2024 Presensi Ku - Sistem Absensi Sekolah
           </p>
@@ -182,139 +192,171 @@ function LoginPage({ onLogin }) {
 
   // ==================== LOGIN FORM VIEW ====================
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
-      style={{ 
-        fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
-      }}
+    <div
+      className="min-h-screen flex"
+      style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}
     >
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-soft-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-soft-pulse-delayed" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-400/5 rounded-full blur-3xl" />
-        
-        {/* Grid Pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
+      {/* ===== LEFT PANEL ===== */}
+      <div
+        className="hidden lg:flex lg:w-[58%] flex-col justify-between p-12 relative overflow-hidden"
+        style={{ background: '#0b1120' }}
+      >
+        {/* Background glows */}
+        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-16 -left-16 w-52 h-52 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)' }} />
+        {/* Subtle dot grid */}
+        <div className="absolute inset-0 opacity-[0.025] pointer-events-none"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }}
-        />
-      </div>
+            backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+            backgroundSize: '32px 32px'
+          }} />
 
-      <div className="w-full max-w-md relative z-10">
-        
-        {/* Brand Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/25 mb-5 hover:shadow-blue-500/40 transition-shadow duration-300">
-            <IconShieldCheck className="w-8 h-8 text-white" />
+        {/* Brand */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">P</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">
-            Sistem<span className="text-blue-400">Absensi</span>
-          </h1>
-          <p className="text-sm text-slate-400 font-medium">
-            Admin Panel • Manajemen Data
-          </p>
+          <span className="text-white font-semibold text-base tracking-tight">Presensi Ku</span>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl shadow-2xl p-8 hover:border-white/[0.12] transition-all duration-300">
-          
-          {/* Card Header */}
-          <div className="mb-8">
-            <h2 className="text-lg font-bold text-white tracking-tight">
-              Selamat Datang Kembali
-            </h2>
-            <p className="text-sm text-slate-400 mt-1.5 leading-relaxed">
-              Masuk untuk mengelola data absensi siswa
-            </p>
+        {/* Hero text */}
+        <div className="relative z-10 flex-1 flex flex-col justify-center py-10">
+          <h1 className="text-4xl font-extrabold text-white leading-tight tracking-tight mb-4">
+            Kelola kehadiran<br />
+            <span className="text-blue-400">siswa dengan mudah.</span>
+          </h1>
+          <p className="text-slate-400 text-sm leading-relaxed mb-8 max-w-xs">
+            Dashboard terpadu untuk absensi, izin, dan pengumuman seluruh siswa secara real-time.
+          </p>
+          <div className="space-y-3">
+            <FeatureItem
+              icon={<IconQrCode className="w-3.5 h-3.5 text-blue-400" />}
+              text="Absensi QR Code harian otomatis"
+            />
+            <FeatureItem
+              icon={<svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+              text="Laporan Excel satu klik"
+            />
+            <FeatureItem
+              icon={<svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>}
+              text="Manajemen pengajuan izin & sakit"
+            />
+            <FeatureItem
+              icon={<IconBell className="w-3.5 h-3.5 text-blue-400" />}
+              text="Push notification ke perangkat siswa"
+            />
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="relative z-10 flex gap-8 pt-6 border-t border-white/10">
+          {[
+            { val: '100%', label: 'Akurasi Data' },
+            { val: 'Real-time', label: 'Pembaruan' },
+            { val: 'Aman', label: 'Terenkripsi' },
+          ].map(({ val, label }) => (
+            <div key={label}>
+              <div className="text-blue-400 font-bold text-sm">{val}</div>
+              <div className="text-slate-500 text-xs mt-0.5">{label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ===== RIGHT PANEL ===== */}
+      <div className="flex-1 flex items-center justify-center bg-white px-6 py-12">
+        <div className="w-full max-w-sm">
+
+          {/* Mobile brand (only on small screens) */}
+          <div className="flex items-center gap-2 mb-8 lg:hidden">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xs">P</span>
+            </div>
+            <span className="font-semibold text-gray-900">Presensi Ku</span>
           </div>
 
-          {/* Error Message */}
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">
+            Selamat datang kembali
+          </h2>
+          <p className="text-sm text-gray-500 mb-8">Masuk ke panel admin untuk melanjutkan</p>
+
+          {/* Error */}
           {error && (
-            <div 
+            <div
               ref={errorRef}
-              className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl mb-6 animate-shake"
+              className="flex items-start gap-3 p-3.5 bg-red-50 border border-red-200 rounded-xl mb-5 animate-shake"
             >
-              <div className="w-5 h-5 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+              <div className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="w-1.5 h-1.5 bg-red-400 rounded-full block" />
               </div>
-              <p className="text-sm text-red-300 leading-relaxed">{error}</p>
+              <p className="text-sm text-red-600 leading-relaxed">{error}</p>
             </div>
           )}
 
-          {/* Form */}
-          <div className="space-y-5">
-            {/* Username Input */}
-            <div className="group">
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">
-                Username
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <IconUser className="w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="admin@sekolah.id"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="w-full pl-12 pr-4 py-3 bg-white/[0.05] border border-white/[0.08] rounded-2xl text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:bg-white/[0.08] focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
-                />
+          {/* Username */}
+          <div className="mb-4">
+            <label className="block text-[10.5px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              Username
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <IconUser className="w-4 h-4 text-gray-400" />
               </div>
-            </div>
-
-            {/* Password Input */}
-            <div className="group">
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <IconLock className="w-5 h-5 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
-                </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="w-full pl-12 pr-12 py-3 bg-white/[0.05] border border-white/[0.08] rounded-2xl text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:bg-white/[0.08] focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                  {showPassword ? (
-                    <IconEyeOff className="w-5 h-5" />
-                  ) : (
-                    <IconEye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
+              <input
+                type="text"
+                placeholder="Masukkan username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all"
+              />
             </div>
           </div>
 
-          {/* Forgot Password */}
-          <div className="mt-3 text-right">
-            <button 
+          {/* Password */}
+          <div className="mb-2">
+            <label className="block text-[10.5px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              Password
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <IconLock className="w-4 h-4 text-gray-400" />
+              </div>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Masukkan password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Forgot */}
+          <div className="text-right mb-6">
+            <button
               onClick={() => alert('Fitur reset password: hubungi administrator sekolah.\n\nDemo: username: admin / password: admin123')}
-              className="text-xs text-slate-500 hover:text-blue-400 transition-colors font-medium"
+              className="text-xs text-blue-500 hover:text-blue-700 transition-colors font-medium"
             >
               Lupa password?
             </button>
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <button
             onClick={handleSubmit}
             disabled={loading || !username || !password}
-            className="w-full mt-6 flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold rounded-2xl transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:hover:translate-y-0 disabled:hover:shadow-blue-500/25"
+            className="w-full flex items-center justify-center gap-2.5 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -323,67 +365,36 @@ function LoginPage({ onLogin }) {
               </>
             ) : (
               <>
-                <IconSparkles className="w-5 h-5" />
+                <IconSparkles className="w-4 h-4" />
                 <span>Masuk ke Dashboard</span>
               </>
             )}
           </button>
 
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-white/[0.06]">
-            <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
-              <div className="w-1 h-1 bg-blue-500/50 rounded-full" />
-              <span>Sistem Manajemen Absensi</span>
-              <div className="w-1 h-1 bg-blue-500/50 rounded-full" />
-              <span>v2.0</span>
-            </div>
+          {/* Hint */}
+          <div className="mt-5 p-3.5 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-2.5">
+            <IconShieldCheck className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-blue-600 leading-relaxed">
+              Demo: gunakan <strong>admin</strong> / <strong>admin123</strong> untuk masuk ke sistem.
+            </p>
           </div>
-        </div>
 
-        {/* Feature Strip */}
-        <div className="flex flex-wrap justify-center gap-6 mt-8 text-center">
-          <div className="flex flex-col items-center">
-            <div className="text-blue-400 font-bold text-sm tracking-wide">100%</div>
-            <div className="text-[11px] text-slate-500 font-medium">Akurasi Data</div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-blue-400 font-bold text-sm tracking-wide">Real-time</div>
-            <div className="text-[11px] text-slate-500 font-medium">Pembaruan</div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-blue-400 font-bold text-sm tracking-wide">Aman</div>
-            <div className="text-[11px] text-slate-500 font-medium">Terenkripsi</div>
-          </div>
+          <p className="text-center text-xs text-gray-400 mt-8">
+            © 2024 Presensi Ku · Sistem Absensi Sekolah
+          </p>
         </div>
-
-        {/* Copyright */}
-        <p className="text-center text-xs text-slate-600 mt-6">
-          © 2024 Presensi Ku - Sistem Absensi Sekolah
-        </p>
       </div>
 
-      {/* Inline Animations */}
+      {/* Animations */}
       <style>{`
-        @keyframes softPulse {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(1.05); }
-        }
-        .animate-soft-pulse {
-          animation: softPulse 6s infinite ease-in-out;
-        }
-        .animate-soft-pulse-delayed {
-          animation: softPulse 6s infinite ease-in-out 2s;
-        }
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
-          20% { transform: translateX(-6px); }
-          40% { transform: translateX(6px); }
+          20% { transform: translateX(-5px); }
+          40% { transform: translateX(5px); }
           60% { transform: translateX(-3px); }
           80% { transform: translateX(3px); }
         }
-        .animate-shake {
-          animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-        }
+        .animate-shake { animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
       `}</style>
     </div>
   );
