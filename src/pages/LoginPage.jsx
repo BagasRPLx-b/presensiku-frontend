@@ -1,35 +1,85 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   HiOutlineUser, 
   HiOutlineLockClosed, 
   HiOutlineEye, 
   HiOutlineEyeOff,
   HiOutlineShieldCheck,
-  HiOutlineSparkles
+  HiOutlineSparkles,
+  HiOutlineCheck,
+  HiOutlineRefresh
 } from 'react-icons/hi';
 
+// ==================== LOGIN PAGE COMPONENT ====================
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  
+  const errorRef = useRef(null);
+
+  // Auto-hide error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  // Clear error when user types
+  useEffect(() => {
+    if (username || password) setError('');
+  }, [username, password]);
 
   const handleSubmit = async () => {
+    // Validation
+    if (!username.trim() || !password) {
+      setError('Username dan password harus diisi');
+      if (errorRef.current) {
+        errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
     setError('');
     setLoading(true);
+
     try {
-      // Uncomment dan sesuaikan dengan API Anda
-      // const res = await API.post('/api/auth/admin/login', { username, password });
-      // if (res.data.success) {
-      //   onLogin(res.data.data);
-      // }
-      
-      // Simulasi login untuk testing
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      onLogin({ username, token: 'dummy-token' });
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
+      // Demo authentication
+      if (
+        (username === 'admin' || username === 'admin@sekolah.id') && 
+        password === 'admin123'
+      ) {
+        const userData = { 
+          username, 
+          token: 'dummy-jwt-token-' + Date.now() 
+        };
+        
+        // Jika menggunakan real API:
+        // const res = await API.post('/api/auth/admin/login', { username, password });
+        // if (res.data.success) {
+        //   onLogin(res.data.data);
+        // }
+        
+        setLoggedInUser(userData);
+        setIsLoggedIn(true);
+        
+        // Call onLogin prop if exists
+        if (onLogin) {
+          onLogin(userData);
+        }
+      } else {
+        throw new Error('Username atau password salah. Gunakan admin / admin123 untuk demo.');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Gagal terhubung ke server. Pastikan backend di Railway sudah Active.');
+      setError(err.message || 'Gagal terhubung ke server. Pastikan backend aktif.');
     } finally {
       setLoading(false);
     }
@@ -39,6 +89,60 @@ function LoginPage({ onLogin }) {
     if (e.key === 'Enter') handleSubmit();
   };
 
+  const handleReset = () => {
+    setIsLoggedIn(false);
+    setLoggedInUser(null);
+    setUsername('');
+    setPassword('');
+    setError('');
+  };
+
+  // ==================== SUCCESS VIEW ====================
+  if (isLoggedIn && loggedInUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-gray-900 px-4"
+        style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
+        <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-500/20 rounded-full mb-6">
+            <HiOutlineCheck className="w-10 h-10 text-green-400" />
+          </div>
+          
+          <h2 className="text-2xl font-bold text-white mb-2">Login Berhasil!</h2>
+          <p className="text-slate-300 mb-6">
+            Selamat datang,{' '}
+            <span className="font-semibold text-white">{loggedInUser.username}</span>.
+            Anda diarahkan ke dashboard utama.
+          </p>
+          
+          <div className="bg-white/5 rounded-xl p-4 text-left space-y-2 mb-6">
+            <p className="text-sm text-slate-300 flex items-center gap-2">
+              <span className="text-blue-400 font-mono">✓</span> Akses realtime absensi
+            </p>
+            <p className="text-sm text-slate-300 flex items-center gap-2">
+              <span className="text-blue-400 font-mono">✓</span> QR Code management
+            </p>
+            <p className="text-sm text-slate-300 flex items-center gap-2">
+              <span className="text-blue-400 font-mono">✓</span> Laporan Excel & Izin siswa
+            </p>
+          </div>
+          
+          <button
+            onClick={handleReset}
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+          >
+            <HiOutlineRefresh className="w-5 h-5" />
+            Kembali ke Halaman Login
+          </button>
+          
+          <p className="text-xs text-slate-500 mt-4">
+            © 2024 Presensi Ku - Sistem Absensi Sekolah
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ==================== LOGIN FORM VIEW ====================
   return (
     <div 
       className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
@@ -49,8 +153,8 @@ function LoginPage({ onLogin }) {
     >
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-soft-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-soft-pulse-delayed" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-400/5 rounded-full blur-3xl" />
         
         {/* Grid Pattern */}
@@ -93,7 +197,10 @@ function LoginPage({ onLogin }) {
 
           {/* Error Message */}
           {error && (
-            <div className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl mb-6 animate-shake">
+            <div 
+              ref={errorRef}
+              className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl mb-6 animate-shake"
+            >
               <div className="w-5 h-5 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
               </div>
@@ -155,9 +262,12 @@ function LoginPage({ onLogin }) {
             </div>
           </div>
 
-          {/* Forgot Password Link */}
+          {/* Forgot Password */}
           <div className="mt-3 text-right">
-            <button className="text-xs text-slate-500 hover:text-blue-400 transition-colors font-medium">
+            <button 
+              onClick={() => alert('Fitur reset password: hubungi administrator sekolah.\n\nDemo: username: admin / password: admin123')}
+              className="text-xs text-slate-500 hover:text-blue-400 transition-colors font-medium"
+            >
               Lupa password?
             </button>
           </div>
@@ -195,24 +305,49 @@ function LoginPage({ onLogin }) {
           </div>
         </div>
 
-        {/* Bottom Text */}
+        {/* Feature Strip */}
+        <div className="flex flex-wrap justify-center gap-6 mt-8 text-center">
+          <div className="flex flex-col items-center">
+            <div className="text-blue-400 font-bold text-sm tracking-wide">100%</div>
+            <div className="text-[11px] text-slate-500 font-medium">Akurasi Data</div>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="text-blue-400 font-bold text-sm tracking-wide">Real-time</div>
+            <div className="text-[11px] text-slate-500 font-medium">Pembaruan</div>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="text-blue-400 font-bold text-sm tracking-wide">Aman</div>
+            <div className="text-[11px] text-slate-500 font-medium">Terenkripsi</div>
+          </div>
+        </div>
+
+        {/* Copyright */}
         <p className="text-center text-xs text-slate-600 mt-6">
-          © 2024 SistemAbsensi • All rights reserved
+          © 2024 Presensi Ku - Sistem Absensi Sekolah
         </p>
       </div>
 
-      {/* Inline Animation Styles */}
+      {/* Inline Animations */}
       <style jsx>{`
+        @keyframes softPulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .animate-soft-pulse {
+          animation: softPulse 6s infinite ease-in-out;
+        }
+        .animate-soft-pulse-delayed {
+          animation: softPulse 6s infinite ease-in-out 2s;
+        }
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
+          20% { transform: translateX(-6px); }
+          40% { transform: translateX(6px); }
+          60% { transform: translateX(-3px); }
+          80% { transform: translateX(3px); }
         }
         .animate-shake {
-          animation: shake 0.4s ease-in-out;
-        }
-        .delay-1000 {
-          animation-delay: 1s;
+          animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
         }
       `}</style>
     </div>
